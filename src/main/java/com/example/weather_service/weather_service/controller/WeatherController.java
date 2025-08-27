@@ -53,4 +53,9 @@ public class WeatherController {
         return "Weather data for " + city + " has been deleted and cache evicted.";
     }
 
+    @GetMapping("/health")
+    public String getHealth(){
+        return "Healthy";
+    }
+
 }
