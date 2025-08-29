@@ -1,13 +1,17 @@
 package com.example.weather_service.weather_service.config;
 
+import com.example.weather_service.weather_service.entity.Permissions;
+import com.example.weather_service.weather_service.entity.Role;
 import com.example.weather_service.weather_service.filters.JWTAuthFilter;
 import com.example.weather_service.weather_service.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,6 +25,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     @Autowired
     private JWTAuthFilter jwtAuthFilter;
@@ -29,7 +34,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/h2-console", "/authenticate").permitAll()
+                        auth.requestMatchers("/h2-console", "/authenticate", "/api/users/register").permitAll()
+//                                .requestMatchers("/weather/health").hasRole(Role.ADMIN.name())//this is role based matching
+//                                .requestMatchers(HttpMethod.GET, "/weather/**").hasAuthority(Permissions.WEATHER_READ.name())//authority based access
+//                                .requestMatchers(HttpMethod.POST, "/weather/**").hasAuthority(Permissions.WEATHER_WRITE.name())
+//                                .requestMatchers(HttpMethod.DELETE, "/weather/**").hasAuthority(Permissions.WEATHER_DELETE.name())
                                 .anyRequest().authenticated());
 //                .httpBasic(withDefaults());//httpBasic will tell our spring boot application to use basicAuthentication filter because default is form based which uses UsernameAndPasswordAuthenticationFilter
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);//this is to add jwtAuthFilter before UsernamePasswordAuthenticationFilter so that it will not run again and call Authentication manager for re-authorizing as authorization is already done, and we have also store principal/authentication details in SecurityContextHolder so that this will be skipped.

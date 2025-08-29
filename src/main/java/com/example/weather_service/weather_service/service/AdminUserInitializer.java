@@ -1,5 +1,6 @@
 package com.example.weather_service.weather_service.service;
 
+import com.example.weather_service.weather_service.entity.Role;
 import com.example.weather_service.weather_service.entity.Users;
 import com.example.weather_service.weather_service.repository.UserDetailsRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -17,10 +18,19 @@ public class AdminUserInitializer {
                 Users admin = new Users();
                 admin.setUsername("admin");
                 admin.setPassword(passwordEncoder.encode("admin1234"));//securely store password
-                admin.setRole("ROLE_ADMIN");
+                admin.setRole(Role.ADMIN);
 
                 userDetailsRepository.save(admin);
                 System.out.println("Default admin user created!");
+            }
+            if(userDetailsRepository.findByUsername("user").isEmpty()){
+                Users user = new Users();
+                user.setUsername("user");
+                user.setPassword(passwordEncoder.encode("user1234"));//securely store password
+                user.setRole(Role.USER);
+
+                userDetailsRepository.save(user);
+                System.out.println("Default normal user created!");
             }
         };
     }
